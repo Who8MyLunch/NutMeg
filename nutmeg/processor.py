@@ -3,13 +3,9 @@ from __future__ import division, print_function, unicode_literals, absolute_impo
 
 import os
 import sys
-import contextlib
-import time
 import json
 
-import numpy as np
 import sarge
-# import shortuuid
 
 try:
     from .namespace import Struct
