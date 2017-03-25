@@ -4,6 +4,44 @@ A collection of simple video processing tools.  Nice Python classes and function
 that wrap practical functionality predefined ffmpeg commands.
 
 
+## Example NutmegClip
+
+```python
+f = '/home/Videos/GoPro/Malibu/GOPR6248.MP4'
+
+p = NutmegProbe()
+p.probe(f)
+
+print('\nOriginal file: {}'.format(os.path.basename(f)))
+print('Original duration: {}'.format(p.results.container.duration))
+
+time_start = 0
+time_stop = 0.5*p.results.container.duration
+
+c = NutmegClip()
+c.clip(f, time_start, time_stop)
+
+print('\nClip file: {}'.format(os.path.basename(c.results.fname_out)))
+
+p = NutmegProbe()
+p.probe(c.results.fname_out)
+
+print('Clip duration: {}'.format(p.results.container.duration))
+
+```
+
+The above example yields the following output:
+
+```text
+Original file: GOPR6248.MP4
+Original duration: 40.323617
+
+Clip file: GOPR6248.clip-0.00-20.16.mp4
+Clip duration: 20.182
+
+```
+
+
 ## Example NutmegProbe
 
 ```python

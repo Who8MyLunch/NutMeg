@@ -26,7 +26,6 @@ def example_clip():
     p = NutmegProbe()
     p.probe(f)
 
-
     print('\nOriginal file: {}'.format(os.path.basename(f)))
     print('Original duration: {}'.format(p.results.container.duration))
 
