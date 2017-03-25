@@ -4,21 +4,16 @@ A collection of simple video processing tools.  Nice Python classes and function
 that wrap practical functionality predefined ffmpeg commands.
 
 
-## Examples
+## Example NutmegProbe
 
-- NutmegProbe
-
-```py
+```python
 f = '/home/Videos/GoPro/Malibu/GOPR6248.MP4'
 
 p = NutmegProbe()
 p.probe(f)
 
-
 print('\nContainer:')
 IPython.display.display(p.results.container)
-
-print('\nNumber of streams: {}'.format(p.results.num_streams))
 
 for s in p.results.streams:
     print('\nStream {}:'.format(s.index))
@@ -44,7 +39,6 @@ Container:
   'major_brand': 'avc1',
   'minor_version': '0'}}
 ```
-Number of streams: 3
 
 Stream 0:
 ```python

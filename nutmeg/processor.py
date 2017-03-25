@@ -54,6 +54,21 @@ def find_executable(executable, path=None):
     else:
         return None
 
+def safe_number(value):
+    """Attempt to convert supplied object to an integer or float.  Return original value if unsucessful.
+    """
+    try:
+        try:
+            return int(value)
+        except ValueError:
+            try:
+                return float(value)
+            except ValueError:
+                return value
+    except TypeError:
+        return value
+
+
 #------------------------------------------------
 
 class Proc(object):
@@ -208,26 +223,28 @@ class NutmegProbe(Proc):
                  '-hide_banner',
                  '-show_format',
                  '-show_streams',
-                 # '-unit -prefix -pretty',
                  '-print_format json',
+                 # '-unit -prefix -pretty',
                  '-i ' + fname_in]
-                 # '-show_pixel_formats',
 
         self.command = ' '.join(parts)
         self.start()
 
     def process_results(self, results):
-        """Parse lines of JSON text from stdout, extract container and stream information
+        """Parse lines of JSON text from stdout, extract container and stream information.
         """
         text = ' '.join(results.lines_stdout)
         parsed = json.loads(text)
 
-        streams = [Struct(s) for s in parsed['streams']]
-        results.streams = streams
+        # Convert any string numerical values to int or float.  Safely.
+        container = {k: safe_number(v) for k,v in parsed['format'].items()}
+        streams =  [{k: safe_number(v) for k,v in s.items()} for s in parsed['streams']]
+
+        # Store final results in handy namespace structures.  Same as a dict, but access items
+        # via attributes.  Includes support for IPython tab-completion.
+        results.container = Struct(container)
         results.num_streams = len(streams)
-
-        results.container = Struct(parsed['format'])
-
+        results.streams = [Struct(s) for s in streams]
 
 
 
@@ -287,7 +304,6 @@ class NutmegIntra(Proc):
         self.command = ' '.join(parts)
         self.start()
 
-
     def process_results(self, results):
         """Return video processing results.
         """
@@ -295,7 +311,6 @@ class NutmegIntra(Proc):
             raise ValueError('Output file not found: {}'.format(self.fname_out))
 
         results.fname_out = self.fname_out
-
 
 
 
