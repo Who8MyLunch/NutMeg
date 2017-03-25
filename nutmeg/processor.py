@@ -357,15 +357,5 @@ def intra(fname_video):
 
 #------------------------------------------------
 
-
 if __name__ == '__main__':
-
-    print(1)
-    f = '/home/pierre/Videos/GoPro/Malibu/GOPR6250.MP4'
-    intra = NutmegIntra(f)
-    print(2)
-    probe = NutmegProbe(intra.results.fname_out)
-
-    print(3)
-    clip = NutmegClip()
-
+    pass
