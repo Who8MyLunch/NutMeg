@@ -28,7 +28,7 @@ for s in p.results.streams:
 Running the above sample code yields the following output:
 
 Container:
-```json
+```python
 {'bit_rate': '24243114',
  'duration': '40.323617',
  'filename': '/home/Videos/GoPro/Malibu/GOPR6248.MP4',
@@ -47,7 +47,7 @@ Container:
 Number of streams: 3
 
 Stream 0:
-```json
+```python
 {'avg_frame_rate': '60000/1001',
  'bit_rate': '23967131',
  'bits_per_raw_sample': '8',
@@ -102,7 +102,7 @@ Stream 0:
 ```
 
 Stream 1:
-```json
+```python
 {'avg_frame_rate': '0/0',
  'bit_rate': '128040',
  'bits_per_sample': 0,
@@ -143,7 +143,7 @@ Stream 1:
 ```
 
 Stream 2:
-```json
+```python
 {'avg_frame_rate': '60/1',
  'codec_tag': '0x64636d74',
  'codec_tag_string': 'tmcd',
