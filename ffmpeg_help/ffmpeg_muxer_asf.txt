@@ -1,0 +1,8 @@
+Muxer asf [ASF (Advanced / Active Streaming Format)]:
+    Common extensions: asf,wmv,wma.
+    Mime type: video/x-ms-asf.
+    Default video codec: msmpeg4v3.
+    Default audio codec: wmav2.
+ASF muxer AVOptions:
+  -packet_size       <int>        E....... Packet size (from 100 to 65536) (default 3200)
+

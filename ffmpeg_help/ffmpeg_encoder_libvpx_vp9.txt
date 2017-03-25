@@ -1,0 +1,55 @@
+https://trac.ffmpeg.org/wiki/Encode/VP9
+
+Encoder libvpx-vp9 [libvpx VP9]:
+    General capabilities: delay threads 
+    Threading capabilities: auto
+    Supported pixel formats: yuv420p yuva420p yuv422p yuv440p yuv444p gbrp
+libvpx-vp9 encoder AVOptions:
+  -auto-alt-ref      <boolean>    E..V.... Enable use of alternate reference frames (2-pass only) (default auto)
+  -lag-in-frames     <int>        E..V.... Number of frames to look ahead for alternate reference frame selection (from -1 to INT_MAX) (default -1)
+  -arnr-maxframes    <int>        E..V.... altref noise reduction max frame count (from -1 to INT_MAX) (default -1)
+  -arnr-strength     <int>        E..V.... altref noise reduction filter strength (from -1 to INT_MAX) (default -1)
+  -arnr-type         <int>        E..V.... altref noise reduction filter type (from -1 to INT_MAX) (default -1)
+     backward                     E..V....
+     forward                      E..V....
+     centered                     E..V....
+  -tune              <int>        E..V.... Tune the encoding to a specific scenario (from -1 to INT_MAX) (default -1)
+     psnr                         E..V....
+     ssim                         E..V....
+  -deadline          <int>        E..V.... Time to spend encoding, in microseconds. (from INT_MIN to INT_MAX) (default good)
+     best                         E..V....
+     good                         E..V....
+     realtime                     E..V....
+  -error-resilient   <flags>      E..V.... Error resilience configuration (default 0)
+     default                      E..V.... Improve resiliency against losses of whole frames
+     partitions                   E..V.... The frame partitions are independently decodable by the bool decoder, meaning that partitions can be decoded even though earlier partitions have been lost. Note that intra predicition is still done over the partition boundary.
+  -max-intra-rate    <int>        E..V.... Maximum I-frame bitrate (pct) 0=unlimited (from -1 to INT_MAX) (default -1)
+  -crf               <int>        E..V.... Select the quality for constant quality mode (from -1 to 63) (default -1)
+  -static-thresh     <int>        E..V.... A change threshold on blocks below which they will be skipped by the encoder (from 0 to INT_MAX) (default 0)
+  -drop-threshold    <int>        E..V.... Frame drop threshold (from INT_MIN to INT_MAX) (default 0)
+  -noise-sensitivity <int>        E..V.... Noise sensitivity (from 0 to 4) (default 0)
+  -undershoot-pct    <int>        E..V.... Datarate undershoot (min) target (%) (from -1 to 100) (default -1)
+  -overshoot-pct     <int>        E..V.... Datarate overshoot (max) target (%) (from -1 to 1000) (default -1)
+  -cpu-used          <int>        E..V.... Quality/Speed ratio modifier (from -8 to 8) (default 1)
+  -lossless          <int>        E..V.... Lossless mode (from -1 to 1) (default -1)
+  -tile-columns      <int>        E..V.... Number of tile columns to use, log2 (from -1 to 6) (default -1)
+  -tile-rows         <int>        E..V.... Number of tile rows to use, log2 (from -1 to 2) (default -1)
+  -frame-parallel    <boolean>    E..V.... Enable frame parallel decodability features (default auto)
+  -aq-mode           <int>        E..V.... adaptive quantization mode (from -1 to 3) (default -1)
+     none                         E..V.... Aq not used
+     variance                     E..V.... Variance based Aq
+     complexity                   E..V.... Complexity based Aq
+     cyclic                       E..V.... Cyclic Refresh Aq
+  -speed             <int>        E..V....  (from -16 to 16) (default 1)
+  -quality           <int>        E..V....  (from INT_MIN to INT_MAX) (default good)
+     best                         E..V....
+     good                         E..V....
+     realtime                     E..V....
+  -vp8flags          <flags>      E..V....  (default 0)
+     error_resilient              E..V.... enable error resilience
+     altref                       E..V.... enable use of alternate reference frames (VP8/2-pass only)
+  -arnr_max_frames   <int>        E..V.... altref noise reduction max frame count (from 0 to 15) (default 0)
+  -arnr_strength     <int>        E..V.... altref noise reduction filter strength (from 0 to 6) (default 3)
+  -arnr_type         <int>        E..V.... altref noise reduction filter type (from 1 to 3) (default 3)
+  -rc_lookahead      <int>        E..V.... Number of frames to look ahead for alternate reference frame selection (from 0 to 25) (default 25)
+

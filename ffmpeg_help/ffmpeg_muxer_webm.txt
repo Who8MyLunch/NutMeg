@@ -1,0 +1,16 @@
+Muxer webm [WebM]:
+    Common extensions: webm.
+    Mime type: video/webm.
+    Default video codec: vp9.
+    Default audio codec: opus.
+    Default subtitle codec: webvtt.
+webm muxer AVOptions:
+  -reserve_index_space <int>        E....... Reserve a given amount of space (in bytes) at the beginning of the file for the index (cues). (from 0 to INT_MAX) (default 0)
+  -cluster_size_limit <int>        E....... Store at most the provided amount of bytes in a cluster.  (from -1 to INT_MAX) (default -1)
+  -cluster_time_limit <int64>      E....... Store at most the provided number of milliseconds in a cluster. (from -1 to I64_MAX) (default -1)
+  -dash              <boolean>    E....... Create a WebM file conforming to WebM DASH specification (default false)
+  -dash_track_number <int>        E....... Track number for the DASH stream (from 0 to 127) (default 1)
+  -live              <boolean>    E....... Write files assuming it is a live stream. (default false)
+  -allow_raw_vfw     <boolean>    E....... allow RAW VFW mode (default false)
+  -write_crc32       <boolean>    E....... write a CRC32 element inside every Level 1 element (default true)
+

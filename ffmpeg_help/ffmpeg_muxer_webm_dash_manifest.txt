@@ -1,0 +1,13 @@
+Muxer webm_dash_manifest [WebM DASH Manifest]:
+    Common extensions: xml.
+    Mime type: application/xml.
+WebM DASH Manifest muxer AVOptions:
+  -adaptation_sets   <string>     E....... Adaptation sets. Syntax: id=0,streams=0,1,2 id=1,streams=3,4 and so on
+  -debug_mode        <boolean>    E....... [private option - users should never set this]. Create deterministic output (default false)
+  -live              <boolean>    E....... create a live stream manifest (default false)
+  -chunk_start_index <int>        E....... start index of the chunk (from 0 to INT_MAX) (default 0)
+  -chunk_duration_ms <int>        E....... duration of each chunk (in milliseconds) (from 0 to INT_MAX) (default 1000)
+  -utc_timing_url    <string>     E....... URL of the page that will return the UTC timestamp in ISO format
+  -time_shift_buffer_depth <double>     E....... Smallest time (in seconds) shifting buffer for which any Representation is guaranteed to be available. (from 1 to DBL_MAX) (default 60)
+  -minimum_update_period <int>        E....... Minimum Update Period (in seconds) of the manifest. (from 0 to INT_MAX) (default 0)
+

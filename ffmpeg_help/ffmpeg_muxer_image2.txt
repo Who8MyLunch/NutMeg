@@ -1,0 +1,10 @@
+Muxer image2 [image2 sequence]:
+    Common extensions: bmp,dpx,jls,jpeg,jpg,ljpg,pam,pbm,pcx,pgm,pgmyuv,png,ppm,sgi,tga,tif,tiff,jp2,j2c,j2k,xwd,sun,ras,rs,im1,im8,im24,sunras,xbm,xface,pix,y.
+    Default video codec: mjpeg.
+image2 muxer AVOptions:
+  -updatefirst       <boolean>    E....... continuously overwrite one file (default false)
+  -update            <boolean>    E....... continuously overwrite one file (default false)
+  -start_number      <int>        E....... set first number in the sequence (from 0 to INT_MAX) (default 1)
+  -strftime          <boolean>    E....... use strftime for filename (default false)
+  -atomic_writing    <boolean>    E....... write files atomically (using temporary files and renames) (default false)
+

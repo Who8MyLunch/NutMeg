@@ -1,0 +1,15 @@
+Muxer dash [DASH Muxer]:
+    Default video codec: h264.
+    Default audio codec: aac.
+dash muxer AVOptions:
+  -window_size       <int>        E....... number of segments kept in the manifest (from 0 to INT_MAX) (default 0)
+  -extra_window_size <int>        E....... number of segments kept outside of the manifest before removing from disk (from 0 to INT_MAX) (default 5)
+  -min_seg_duration  <int64>      E....... minimum segment duration (in microseconds) (from 0 to INT_MAX) (default 5e+06)
+  -remove_at_exit    <boolean>    E....... remove all segments when finished (default false)
+  -use_template      <boolean>    E....... Use SegmentTemplate instead of SegmentList (default true)
+  -use_timeline      <boolean>    E....... Use SegmentTimeline in SegmentTemplate (default true)
+  -single_file       <boolean>    E....... Store all segments in one file, accessed using byte ranges (default false)
+  -single_file_name  <string>     E....... DASH-templated name to be used for baseURL. Implies storing all segments in one file, accessed using byte ranges
+  -init_seg_name     <string>     E....... DASH-templated name to used for the initialization segment (default "init-stream$RepresentationID$.m4s")
+  -media_seg_name    <string>     E....... DASH-templated name to used for the media segments (default "chunk-stream$RepresentationID$-$Number%05d$.m4s")
+

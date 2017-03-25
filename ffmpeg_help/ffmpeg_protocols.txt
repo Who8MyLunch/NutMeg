@@ -1,0 +1,46 @@
+Supported file protocols:
+Input:
+  async
+  cache
+  concat
+  crypto
+  data
+  ffrtmphttp
+  file
+  ftp
+  gopher
+  hls
+  http
+  httpproxy
+  mmsh
+  mmst
+  pipe
+  rtmp
+  rtmpt
+  rtp
+  srtp
+  subfile
+  tcp
+  udp
+  udplite
+  unix
+Output:
+  crypto
+  ffrtmphttp
+  file
+  ftp
+  gopher
+  http
+  httpproxy
+  icecast
+  md5
+  pipe
+  rtmp
+  rtmpt
+  rtp
+  srtp
+  tee
+  tcp
+  udp
+  udplite
+  unix

@@ -1,0 +1,8 @@
+Muxer avi [AVI (Audio Video Interleaved)]:
+    Common extensions: avi.
+    Mime type: video/x-msvideo.
+    Default video codec: mpeg4.
+    Default audio codec: mp3.
+AVI muxer AVOptions:
+  -write_channel_mask <boolean>    E....... write channel mask into wave format header (default true)
+
