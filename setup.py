@@ -22,6 +22,6 @@ setuptools.setup(install_requires=dependencies,
                  author='Pierre V. Villeneuve',
                  author_email='pierre.villeneuve@gmail.com',
                  url='https://github.com/Who8MyLunch/NutMeg',
-                 download_url='https://github.com/Who8MyLunch/NutMeg/archive/2017.3.27.tar.gz',
+                 download_url='https://github.com/Who8MyLunch/NutMeg/archive/2017.3.27c.tar.gz',
                  version=version,
                  keywords=['video', 'ffmpeg', 'intra', 'clip', 'probe'])
