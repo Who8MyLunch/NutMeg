@@ -5,11 +5,10 @@ import setuptools
 
 """
 Great workflow for configuring a project for both github and pypi:
-
 http://peterdowns.com/posts/first-time-with-pypi.html
 """
 
-version = '2017.3.25'
+version = '2017.3.27'
 
 dependencies = ['sarge']
 
@@ -23,5 +22,7 @@ setuptools.setup(install_requires=dependencies,
                  author='Pierre V. Villeneuve',
                  author_email='pierre.villeneuve@gmail.com',
                  url='https://github.com/Who8MyLunch/NutMeg',
-                 download_url='',
-                 version=version)
+                 download_url='https://github.com/Who8MyLunch/NutMeg/archive/2017.3.27.tar.gz',
+                 version=version,
+                 keywords=['video', 'ffmpeg', 'intra', 'clip', 'probe'],
+                 }
