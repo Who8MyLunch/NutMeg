@@ -259,9 +259,9 @@ class NutmegIntra(Proc):
         if fname_in:
             self.intra(fname_in)
 
-    def intra(self, fname_in):
+    def intra(self, fname_in, crf=23):
         """
-        Convert video file.
+        Convert video file to intra-frames only, more suitable for editing.
 
         Nice terse description of pseudo AVC-I via ffmpeg
         https://vimeo.com/194400625
@@ -289,7 +289,7 @@ class NutmegIntra(Proc):
                  '-tune fastdecode',
                  '-preset ultrafast',
                  '-pix_fmt yuvj420p',
-                 '-crf 23',
+                 '-crf {}'.format(crf),
                  # '-profile:v baseline -level 3.0',
                  # '-me_method tesa
                  # '-subq 9',
