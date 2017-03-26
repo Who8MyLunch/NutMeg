@@ -11,7 +11,7 @@ twin command-line tool:
 https://github.com/pypa/twine
 """
 
-version = '2017.3.27d'
+version = '2017.3.27'
 
 dependencies = ['sarge']
 
