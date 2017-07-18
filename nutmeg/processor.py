@@ -7,10 +7,7 @@ import json
 
 import sarge
 
-try:
-    from .namespace import Struct
-except SystemError:
-    from namespace import Struct
+from ordered_namespace import Struct
 
 """
 This is a collection of classes and function for doing useful work with video files via ffmpeg.
@@ -71,7 +68,7 @@ def safe_number(value):
 
 #------------------------------------------------
 
-class Proc(object):
+class Proc():
     """Base class for asynchronously running an external commandline application.
     """
     def __init__(self, fname_exe, verbose=False):
@@ -87,6 +84,8 @@ class Proc(object):
         # self.path_work = os.path.normpath(os.path.abspath(path_work))
 
         self._proc = None
+        self._stdout = None
+        self._stderr = None
         self._results = None
         self.command = None
         self.verbose = verbose
@@ -124,7 +123,6 @@ class Proc(object):
         """
         if self._proc:
             self._proc.wait()
-            self.process_results()
 
     def stop(self):
         """Halt the process.
@@ -133,6 +131,8 @@ class Proc(object):
             self._proc.kill()
             self._proc.wait()
             self._proc = None
+            self._stdout = None
+            self._stderr = None
             self._results = None
 
             if self.verbose:
@@ -161,7 +161,7 @@ class Proc(object):
 
     @property
     def results(self):
-        """Return any processing results upon completion.
+        """Make available any post-processing results upon task completion.
         """
         if self.running:
             self._proc.wait()
@@ -170,13 +170,7 @@ class Proc(object):
             return None
 
         if not self._results:
-            lines_stdout, lines_stderr = self._capture_stdout_stderr()
-            new_results = Struct()
-            new_results.lines_stdout = lines_stdout
-            new_results.lines_stderr = lines_stderr
-
-            self.process_results(new_results)
-            self._results = new_results
+            self._capture_stdout_stderr()
 
         return self._results
 
@@ -185,7 +179,7 @@ class Proc(object):
         This method returns None if process is still running.
         """
         if self.running:
-            return None
+            return
 
         lines_stdout = []
         for l in self._proc.stdout.text.split('\n'):
@@ -195,10 +189,15 @@ class Proc(object):
         for l in self._proc.stderr.text.split('\n'):
             lines_stderr.extend(l.split('\r'))
 
-        return lines_stdout, lines_stderr
+        self._stdout = lines_stdout
+        self._stderr = lines_stderr
+        self._results = self.post_process()
 
-    def process_results(self, lines_out, lines_err):
-        raise NotImplementedError('Please override this method in your implementation.')
+    def post_process(self):
+        """do something with self._stdout and self._stderr
+        """
+        # raise NotImplementedError('Please override this method in your subclass implementation.')
+        return True
 
 
 
@@ -206,8 +205,7 @@ class NutmegProbe(Proc):
     """Extract information from video using ffprobe command
     """
     def __init__(self, fname_in=None, fname_exe='ffprobe', verbose=False):
-        """
-        Initialize new Processor instance.
+        """Initialize new Processor instance.
         """
         super().__init__(fname_exe, verbose=verbose)
         if fname_in:
@@ -230,7 +228,7 @@ class NutmegProbe(Proc):
         self.command = ' '.join(parts)
         self.start()
 
-    def process_results(self, results):
+    def post_process(self, results):
         """Parse lines of JSON text from stdout, extract container and stream information.
         """
         text = ' '.join(results.lines_stdout)
@@ -304,7 +302,7 @@ class NutmegIntra(Proc):
         self.command = ' '.join(parts)
         self.start()
 
-    def process_results(self, results):
+    def post_process(self, results):
         """Return video processing results.
         """
         if not os.path.isfile(self.fname_out):
@@ -351,7 +349,7 @@ class NutmegClip(Proc):
         self.command = ' '.join(parts)
         self.start()
 
-    def process_results(self, results):
+    def post_process(self, results):
         """Return video processing results.
         """
         if not os.path.isfile(self.fname_out):

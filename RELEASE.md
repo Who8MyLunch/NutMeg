@@ -1,22 +1,34 @@
-# Release
+# Release a New Version
 
-## To release a new version of Nutmeg on PyPI:
+PyPi Instructions: https://packaging.python.org/distributing/#uploading-your-project-to-pypi
+
+Twin command-line tool for registering and uploading packages: https://github.com/pypa/twine
+
+
+Commit code edits to GitHub after making all your awesome changes.  Update version
+numbers in setup.py, version.py, etc.  Making sure to also remove 'dev' descriptor if you use one.
 
 ```bash
 git add <any new stuff>
 git commit -a
-
-python setup.py sdist upload
-python setup.py bdist_wheel upload
-
-git tag -a X.X.X -m 'comment'
 ```
 
-Update _version.py (add 'dev' and increment minor) and then:
+Create source and binary distribution files.  Twine will handle registering the project if this is
+the first time.
+
+
+```bash
+python setup.py sdist bdist_wheel
+
+twine upload dist/*
+```
+
+
+After the above it's time to go back to developing the next great release.  Update current version
+numbers by adding 'dev' (if that's your style) and increment the minor number. Commit this change
+and then get back to work.
+
 
 ```bash
 git commit -a
-
-git push
-git push --tags
 ```
