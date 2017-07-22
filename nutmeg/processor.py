@@ -392,12 +392,26 @@ class NutmegClip(Proc):
 # Convenience functions
 
 def probe(fname_video):
+    """Probe supplied video file for detailed information
+    """
     p = NutmegProbe(fname_video)
     return p.results
 
-def intra(fname_video):
-    i = NutmegIntra(fname_video)
-    return i.results
+def intra(fnames_video):
+    """Process supplied file(s) to intra frames for easier editing
+    """
+    if isinstance(fnames_video, str):
+        fnames_video = [fnames_video]
+
+    p = NutmegIntra()
+    results = []
+    for f in fnames_video:
+        print('Processing: {}'.format(os.path.basename(f)))
+
+        p.run(f, block=True)
+        results.append(p.results)
+
+    return results
 
 #------------------------------------------------
 
