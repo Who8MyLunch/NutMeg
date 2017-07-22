@@ -4,6 +4,7 @@ from __future__ import division, print_function, unicode_literals, absolute_impo
 import os
 import sys
 import json
+import time
 
 import sarge
 
@@ -84,21 +85,27 @@ class Proc():
         # self.path_work = os.path.normpath(os.path.abspath(path_work))
 
         self._proc = None
-        self._stdout = None
-        self._stderr = None
+        self._stdout = []
+        self._stderr = []
         self._results = None
-        self.command = None
+        self.command = ''
         self.verbose = verbose
 
     def __repr__(self):
-        if self.running:
+        if self.is_running:
             msg = 'Nutmeg process running with PID {}'.format(self.pid)
         else:
             msg = 'Nutmeg process not running'
         return str(msg)
 
-    def start(self):
-        """Run task process via Sarge package.
+    def run(self):
+        """User should override this method to setup their application-specific work command string
+        """
+        raise NotImplementedError('Please override this method in your subclass implementation.')
+
+    def _start(self):
+        """Start work task running in the background.  User should not need to call this directly.
+        Work with your subclasses `run` method instead.
         """
         self._results = None
 
@@ -106,7 +113,7 @@ class Proc():
             raise ValueError('command not defined')
 
         # Pre-existing process ID?
-        if self.running:
+        if self.is_running:
             if self.verbose:
                 print('\nProcess already running with PID: {:d}'.format(self.pid))
             return self.pid
@@ -115,19 +122,21 @@ class Proc():
         self._proc = sarge.Command(self.command, stdout=sarge.Capture(), stderr=sarge.Capture())
         self._proc.run(async=True)
 
-        if not self.running:
+        time.sleep(0.01)
+
+        if not self.is_running:
            raise ValueError('Problem starting process: {}'.format(self.fname_exe))
 
     def wait(self):
-        """Wait until child process finishes, then process any results.
+        """Block until background process finishes
         """
         if self._proc:
             self._proc.wait()
 
     def stop(self):
-        """Halt the process.
+        """Halt the process
         """
-        if self.running:
+        if self.is_running:
             self._proc.kill()
             self._proc.wait()
             self._proc = None
@@ -151,7 +160,7 @@ class Proc():
             return None
 
     @property
-    def running(self):
+    def is_running(self):
         """Return True if process is running, otherwise False.
         """
         if self._proc:
@@ -162,8 +171,9 @@ class Proc():
     @property
     def results(self):
         """Make available any post-processing results upon task completion.
+        Block if process is still running in the background.
         """
-        if self.running:
+        if self.is_running:
             self._proc.wait()
 
         if not self._proc:
@@ -176,9 +186,9 @@ class Proc():
 
     def _capture_stdout_stderr(self):
         """Internal function to capture all lines of text from stdout and stderr.
-        This method returns None if process is still running.
+        Method does nothing if process is still running.
         """
-        if self.running:
+        if self.is_running:
             return
 
         lines_stdout = []
@@ -199,6 +209,8 @@ class Proc():
         # raise NotImplementedError('Please override this method in your subclass implementation.')
         return True
 
+#------------------------------------------------
+#------------------------------------------------
 
 
 class NutmegProbe(Proc):
@@ -209,9 +221,9 @@ class NutmegProbe(Proc):
         """
         super().__init__(fname_exe, verbose=verbose)
         if fname_in:
-            self.probe(fname_in)
+            self.run(fname_in)
 
-    def probe(self, fname_in):
+    def run(self, fname_in):
         """Query video file for detailed information
         """
         if not os.path.isfile(fname_in):
@@ -226,12 +238,12 @@ class NutmegProbe(Proc):
                  '-i ' + fname_in]
 
         self.command = ' '.join(parts)
-        self.start()
+        self._start()
 
-    def post_process(self, results):
+    def post_process(self):
         """Parse lines of JSON text from stdout, extract container and stream information.
         """
-        text = ' '.join(results.lines_stdout)
+        text = ' '.join(self._stdout)
         parsed = json.loads(text)
 
         # Convert any string numerical values to int or float.  Safely.
@@ -240,75 +252,83 @@ class NutmegProbe(Proc):
 
         # Store final results in handy namespace structures.  Same as a dict, but access items
         # via attributes.  Includes support for IPython tab-completion.
+        results = Struct()
         results.container = Struct(container)
         results.num_streams = len(streams)
         results.streams = [Struct(s) for s in streams]
 
+        return results
+
+#------------------------------------------------
 
 
 class NutmegIntra(Proc):
     """Convert a video file to an intermediate formate suitable for editing.
     """
-    def __init__(self, fname_in=None, fname_exe='ffmpeg', verbose=True):
-        """
-        Initialize new Processor instance.
+    def __init__(self, fname_in=None, fname_exe='ffmpeg', crf=23, verbose=True):
+        """Initialize new Processor instance.
         """
         super().__init__(fname_exe, verbose=verbose)
         if fname_in:
-            self.intra(fname_in)
+            self.run(fname_in, crf=crf)
 
-    def intra(self, fname_in, crf=23):
-        """
-        Convert video file to intra-frames only, more suitable for editing.
+    def run(self, fname_in, crf=23, block=True):
+        """Convert video file to intra-frames only, more suitable for editing.
 
-        Nice terse description of pseudo AVC-I via ffmpeg
-        https://vimeo.com/194400625
+        Nice terse description of pseudo AVC-I via ffmpeg: https://vimeo.com/194400625
 
-        intra
-        https://sites.google.com/site/linuxencoding/x264-ffmpeg-mapping
-
-        https://trac.ffmpeg.org/wiki/Encode/H.264
+        intra stuff:
+        - https://sites.google.com/site/linuxencoding/x264-ffmpeg-mapping
+        - https://trac.ffmpeg.org/wiki/Encode/H.264
         """
         if not os.path.isfile(fname_in):
-            raise ValueError('File does not exist: {}'.format(fname_in))
+            raise ValueError('File not found: {}'.format(fname_in))
 
+        self.fname_in = fname_in
         b, e = os.path.splitext(fname_in)
         self.fname_out = b + '.intra.mp4'
 
         # Command parts
+        # https://sites.google.com/site/linuxencoding/x264-ffmpeg-mapping
+        # https://ffmpeg.org/ffmpeg-formats.html#Options-8
         parts = [self.fname_exe,
                  '-y',
                  '-hide_banner',
                  '-loglevel info',
-                 # '-report',   # lots of good debug info from ffmpeg
-                 '-i {}'.format(fname_in),
+                 '-report',   # lots of good debug info from ffmpeg
+                 '-i {}'.format(self.fname_in),
                  '-codec:a aac',
+                 '-strict -2',      # enable experimental aac
                  '-codec:v libx264',
-                 '-tune fastdecode',
                  '-preset ultrafast',
+                 '-tune fastdecode',
                  '-pix_fmt yuvj420p',
                  '-crf {}'.format(crf),
                  # '-profile:v baseline -level 3.0',
-                 # '-me_method tesa
-                 # '-subq 9',
-                 '-partitions all -direct-pred auto -psy 0',
-                 # '-b:v 960M -bufsize 960M -level 5.1',
-                 '-g 0 -keyint_min 0',
-                 '-x264opts filler -x264opts colorprim=bt709 -x264opts transfer=bt709',
+                 # '-direct-pred spatial',
+                 '-g 0 -keyint_min 0 -intra',
                  '-x264opts colormatrix=bt709 -x264opts force-cfr',
                  '-movflags +faststart+rtphint+disable_chpl+separate_moof+default_base_moof',
                  self.fname_out]
 
         self.command = ' '.join(parts)
-        self.start()
+        self._start()
 
-    def post_process(self, results):
-        """Return video processing results.
+        if block:
+            self.wait()
+
+    def post_process(self):
+        """Return video processing results
         """
         if not os.path.isfile(self.fname_out):
             raise ValueError('Output file not found: {}'.format(self.fname_out))
 
+        results = Struct()
+        results.probe_in = NutmegProbe(self.fname_in).results
+        results.probe_out = NutmegProbe(self.fname_out).results
         results.fname_out = self.fname_out
+
+        return results
 
 
 
@@ -316,12 +336,11 @@ class NutmegClip(Proc):
     """Extract clip from video file.
     """
     def __init__(self, fname_exe='ffmpeg', verbose=False):
-        """
-        Initialize new Processor instance.
+        """Initialize new Processor instance.
         """
         super().__init__(fname_exe, verbose=verbose)
 
-    def clip(self, fname_in, time_start, time_stop=None, duration=None):
+    def run(self, fname_in, time_start, time_stop=None, duration=None, block=True):
         """Extract clip from video file between two specified times.
         """
         if not time_stop and not duration:
@@ -330,7 +349,11 @@ class NutmegClip(Proc):
         if duration:
             time_stop = time_start + duration
 
-        b, e = os.path.splitext(fname_in)
+        if not os.path.isfile(fname_in):
+            raise ValueError('File not found: {}'.format(fname_in))
+
+        self.fname_in = fname_in
+        b, e = os.path.splitext(self.fname_in)
         self.fname_out = '{}.clip-{:.2f}-{:.2f}.mp4'.format(b, time_start, time_stop)
 
         # Command parts
@@ -347,15 +370,23 @@ class NutmegClip(Proc):
                  self.fname_out]
 
         self.command = ' '.join(parts)
-        self.start()
+        self._start()
 
-    def post_process(self, results):
-        """Return video processing results.
+        if block:
+            self.wait()
+
+    def post_process(self):
+        """Return video processing results
         """
         if not os.path.isfile(self.fname_out):
             raise ValueError('Output file not found: {}'.format(self.fname_out))
 
+        results = Struct()
+        results.probe_in = NutmegProbe(self.fname_in).results
+        results.probe_out = NutmegProbe(self.fname_out).results
         results.fname_out = self.fname_out
+
+        return results
 
 #################################################
 # Convenience functions

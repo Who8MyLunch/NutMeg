@@ -3,21 +3,17 @@ import os
 
 import IPython.display
 
-from processor import NutmegProbe, NutmegClip
+import nutmeg
 
 
 def example():
-    f = '/home/pierre/Videos/GoPro/Malibu/GOPR6248.MP4'
+    f = '/home/pierre/Projects/GoProHelper/notebooks/data/GOPR8802.intra.mp4'
 
-    p = NutmegProbe()
-    p.probe(f)
+    # command
+    p = nutmeg.NutmegClip()
 
-    print('\nContainer:')
-    IPython.display.display(p.results.container)
+    p.run(f, 0.1, duration=2.5)
 
-    for s in p.results.streams:
-        print('\nStream {}:'.format(s.index))
-        IPython.display.display(s)
 
 
 
