@@ -43,5 +43,7 @@ def example_clip():
     print('Clip duration: {}'.format(p.results.container.duration))
 
 
+#------------------------------------------------
+
 if __name__ == '__main__':
     example_clip()
