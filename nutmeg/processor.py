@@ -295,7 +295,7 @@ class NutmegIntra(Proc):
                  '-y',
                  '-hide_banner',
                  '-loglevel info',
-                 '-report',   # lots of good debug info from ffmpeg
+                 # '-report',   # lots of good debug info from ffmpeg
                  '-i {}'.format(self.fname_in),
                  '-codec:a aac',
                  '-strict -2',      # enable experimental aac
@@ -324,6 +324,7 @@ class NutmegIntra(Proc):
             raise ValueError('Output file not found: {}'.format(self.fname_out))
 
         results = Struct()
+        results.fname_in = self.fname_in
         results.probe_in = NutmegProbe(self.fname_in).results
         results.probe_out = NutmegProbe(self.fname_out).results
         results.fname_out = self.fname_out
