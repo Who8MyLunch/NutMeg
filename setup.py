@@ -11,20 +11,12 @@ twin command-line tool:
 https://github.com/pypa/twine
 """
 
-version = '2017.7.22'
+version = '2017.7.23'
 
 dependencies = ['sarge', 'ordered-namespace']
 
 setuptools.setup(install_requires=dependencies,
                  include_package_data=True,
                  packages=setuptools.find_packages(),
-                 # zip_safe=False,
 
-                 name='nutmeg',
-                 description='Simple video processing tools. Python + fmpeg.',
-                 author='Pierre V. Villeneuve',
-                 author_email='pierre.villeneuve@gmail.com',
-                 url='https://github.com/Who8MyLunch/NutMeg',
-                 download_url='https://github.com/Who8MyLunch/NutMeg/archive/{}.tar.gz'.format(version),
-                 version=version,
-                 keywords=['video', 'ffmpeg', 'intra', 'clip', 'probe'])
+                 version=version)
