@@ -1,5 +1,5 @@
 
-# ffmpeg notes
+# ffmpeg notes and ideas
 
 
 file format -> demuxer -> decoder -> codec
@@ -8,7 +8,6 @@ codec -> encoder -> muxer -> file format
 
 
 # LibVPX Parts
-
 
 
 ## muxers/demuxers/formats:

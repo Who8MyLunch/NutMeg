@@ -53,7 +53,8 @@ def find_executable(executable, path=None):
         return None
 
 def safe_number(value):
-    """Attempt to convert supplied object to an integer or float.  Return original value if unsucessful.
+    """Attempt to convert supplied object to an integer or float.
+    Return original value if unsucessful.
     """
     try:
         try:
@@ -263,7 +264,7 @@ class NutmegProbe(Proc):
 
 
 class NutmegIntra(Proc):
-    """Convert a video file to an intermediate formate suitable for editing.
+    """Convert a video file to an intermediate formate suitable for editing
     """
     def __init__(self, fname_in=None, fname_exe='ffmpeg', crf=23, verbose=True):
         """Initialize new Processor instance.
@@ -272,7 +273,7 @@ class NutmegIntra(Proc):
         if fname_in:
             self.run(fname_in, crf=crf)
 
-    def run(self, fname_in, crf=23, block=True):
+    def run(self, fname_in, crf=23, scale_factor=None, scale_size=None, block=True):
         """Convert video file to intra-frames only, more suitable for editing.
 
         Nice terse description of pseudo AVC-I via ffmpeg: https://vimeo.com/194400625
@@ -288,6 +289,18 @@ class NutmegIntra(Proc):
         b, e = os.path.splitext(fname_in)
         self.fname_out = b + '.intra.mp4'
 
+        # Filters
+        # https://trac.ffmpeg.org/wiki/FilteringGuide
+        if not scale_factor:
+            scale_factor = 1
+
+        if scale_factor != 1:
+            filter_scale = '-vf scale=w=iw*{scale_factor:}:-2'.format(scale_factor=scale_factor)
+        elif scale_size:
+            filter_scale = '-vf scale=w={scale_size:}:-2'.format(scale_size=scale_size)
+        else:
+            filter_scale = ''
+
         # Command parts
         # https://sites.google.com/site/linuxencoding/x264-ffmpeg-mapping
         # https://ffmpeg.org/ffmpeg-formats.html#Options-8
@@ -297,15 +310,14 @@ class NutmegIntra(Proc):
                  '-loglevel info',
                  # '-report',   # lots of good debug info from ffmpeg
                  '-i {}'.format(self.fname_in),
+                 filter_scale,
                  '-codec:a aac',
-                 '-strict -2',      # enable experimental aac
+                 '-strict -2',       # enable experimental aac
                  '-codec:v libx264',
                  '-preset ultrafast',
                  '-tune fastdecode',
                  '-pix_fmt yuvj420p',
                  '-crf {}'.format(crf),
-                 # '-profile:v baseline -level 3.0',
-                 # '-direct-pred spatial',
                  '-g 0 -keyint_min 0 -intra',
                  '-x264opts colormatrix=bt709 -x264opts force-cfr',
                  '-movflags +faststart+rtphint+disable_chpl+separate_moof+default_base_moof',
@@ -398,7 +410,7 @@ def probe(fname_video):
     p = NutmegProbe(fname_video)
     return p.results
 
-def intra(fnames_video):
+def intra(fnames_video, scale_factor=1, scale_size=None):
     """Process supplied file(s) to intra frames for easier editing
     """
     if isinstance(fnames_video, str):
@@ -409,7 +421,7 @@ def intra(fnames_video):
     for f in fnames_video:
         print('Processing: {}'.format(os.path.basename(f)))
 
-        p.run(f, block=True)
+        p.run(f, scale_factor=scale_factor, scale_size=scale_size, block=True)
         results.append(p.results)
 
     return results
