@@ -120,10 +120,8 @@ class Proc():
             return self.pid
 
         # Instantiate command and run it
-        self._proc = sarge.Command(self.command, stdout=sarge.Capture(), stderr=sarge.Capture())
+        self._proc = sarge.Command(self.command, stdout=sarge.Capture(), stderr=sarge.Capture(), shell=True)
         self._proc.run(async=True)
-
-        time.sleep(0.01)
 
         if not self.is_running:
            raise ValueError('Problem starting process: {}'.format(self.fname_exe))
@@ -262,6 +260,17 @@ class NutmegProbe(Proc):
 
 #------------------------------------------------
 
+def blur_sigma_resample(fwhm_dst):
+    sigma_to_fwhm = 2.355
+    fwhm_to_sigma = 1/sigma_to_fwhm
+
+    fwhm_src = 1
+    fwhm_delta = (fwhm_dst**2 - fwhm_src**2)**.5
+
+    sigma_delta = fwhm_delta*fwhm_to_sigma
+
+    return sigma_delta
+
 
 class NutmegIntra(Proc):
     """Convert a video file to an intermediate formate suitable for editing
@@ -273,11 +282,12 @@ class NutmegIntra(Proc):
         if fname_in:
             self.run(fname_in, crf=crf)
 
-    def run(self, fname_in, crf=23, scale_factor=None, scale_size=None, block=True):
+    def run(self, fname_in, crf=23, scale_size=None, block=True):
         """Convert video file to intra-frames only, more suitable for editing.
 
         Nice terse description of pseudo AVC-I via ffmpeg: https://vimeo.com/194400625
 
+        crf: 18 is visually lossless, 23 is default, 28 is
         intra stuff:
         - https://sites.google.com/site/linuxencoding/x264-ffmpeg-mapping
         - https://trac.ffmpeg.org/wiki/Encode/H.264
@@ -289,15 +299,24 @@ class NutmegIntra(Proc):
         b, e = os.path.splitext(fname_in)
         self.fname_out = b + '.intra.mp4'
 
+        self._probe_in = NutmegProbe(self.fname_in).results
+
         # Filters
         # https://trac.ffmpeg.org/wiki/FilteringGuide
-        if not scale_factor:
-            scale_factor = 1
+        # if not scale_factor:
+        #     scale_factor = 1
 
-        if scale_factor != 1:
-            filter_scale = '-vf scale=w=iw*{scale_factor:}:-2'.format(scale_factor=scale_factor)
-        elif scale_size:
-            filter_scale = '-vf scale=w={scale_size:}:-2'.format(scale_size=scale_size)
+        # if scale_factor != 1:
+        #     filter_scale = '-vf scale=w=iw*{scale_factor:}:-2'.format(scale_factor=scale_factor)
+        if scale_size:
+            # https://stackoverflow.com/questions/30992760/ffmpeg-scale-video-without-filtering
+            # https://ffmpeg.org/ffmpeg-scaler.html#scaler_005foptions
+            flags = 'flags=gauss'
+            # flags = 'flags=spline'
+            filter_scale = '-vf "scale=w={scale_size:}:-2:{flags:}"'.format(scale_size=scale_size, flags=flags)
+            # fwhm_dst = self._probe_in.streams[0].width/scale_size
+            # sigma = blur_sigma_resample(fwhm_dst)
+            # filter_scale = '-vf "scale=w={scale_size:}:-2, gblur=sigma={sigma:}"'.format(scale_size=scale_size, sigma=sigma)
         else:
             filter_scale = ''
 
@@ -308,7 +327,7 @@ class NutmegIntra(Proc):
                  '-y',
                  '-hide_banner',
                  '-loglevel info',
-                 # '-report',   # lots of good debug info from ffmpeg
+                 '-report',   # lots of good debug info from ffmpeg
                  '-i {}'.format(self.fname_in),
                  filter_scale,
                  '-codec:a aac',
@@ -318,12 +337,13 @@ class NutmegIntra(Proc):
                  '-tune fastdecode',
                  '-pix_fmt yuvj420p',
                  '-crf {}'.format(crf),
-                 '-g 0 -keyint_min 0 -intra',
+                 '-g 0 -keyint_min 0',
                  '-x264opts colormatrix=bt709 -x264opts force-cfr',
                  '-movflags +faststart+rtphint+disable_chpl+separate_moof+default_base_moof',
                  self.fname_out]
 
         self.command = ' '.join(parts)
+
         self._start()
 
         if block:
@@ -337,7 +357,7 @@ class NutmegIntra(Proc):
 
         results = Struct()
         results.fname_in = self.fname_in
-        results.probe_in = NutmegProbe(self.fname_in).results
+        results.probe_in = self._probe_in
         results.probe_out = NutmegProbe(self.fname_out).results
         results.fname_out = self.fname_out
 
@@ -410,7 +430,7 @@ def probe(fname_video):
     p = NutmegProbe(fname_video)
     return p.results
 
-def intra(fnames_video, scale_factor=1, scale_size=None):
+def intra(fnames_video, scale_size=None, crf=23):
     """Process supplied file(s) to intra frames for easier editing
     """
     if isinstance(fnames_video, str):
@@ -421,7 +441,7 @@ def intra(fnames_video, scale_factor=1, scale_size=None):
     for f in fnames_video:
         print('Processing: {}'.format(os.path.basename(f)))
 
-        p.run(f, scale_factor=scale_factor, scale_size=scale_size, block=True)
+        p.run(f, scale_size=scale_size, block=True, crf=crf)
         results.append(p.results)
 
     return results
