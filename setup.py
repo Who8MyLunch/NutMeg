@@ -4,7 +4,7 @@ from __future__ import division, print_function, unicode_literals, absolute_impo
 import setuptools
 
 
-version = '2017.7.30'
+version = '2018.1.12'
 
 dependencies = ['sarge', 'ordered-namespace']
 
