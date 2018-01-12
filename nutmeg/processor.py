@@ -234,7 +234,7 @@ class NutmegProbe(Proc):
                  '-show_streams',
                  '-print_format json',
                  # '-unit -prefix -pretty',
-                 '-i ' + fname_in]
+                 '-i "' + fname_in + '"']
 
         self.command = ' '.join(parts)
         self._start()
