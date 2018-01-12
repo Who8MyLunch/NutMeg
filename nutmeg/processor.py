@@ -272,6 +272,7 @@ def blur_sigma_resample(fwhm_dst):
     return sigma_delta
 
 
+
 class NutmegIntra(Proc):
     """Convert a video file to an intermediate formate suitable for editing
     """
@@ -327,7 +328,7 @@ class NutmegIntra(Proc):
                  '-y',
                  '-hide_banner',
                  '-loglevel info',
-                 '-report',   # lots of good debug info from ffmpeg
+                 # '-report',   # lots of good debug info from ffmpeg
                  '-i {}'.format(self.fname_in),
                  filter_scale,
                  '-codec:a aac',
