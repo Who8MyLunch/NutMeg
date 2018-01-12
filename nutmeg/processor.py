@@ -120,7 +120,7 @@ class Proc():
             return self.pid
 
         # Instantiate command and run it
-        self._proc = sarge.Command(self.command, stdout=sarge.Capture(), stderr=sarge.Capture())
+        self._proc = sarge.Command(self.command, stdout=sarge.Capture(), stderr=sarge.Capture(), shell=True)
         self._proc.run(async=True)
 
         time.sleep(0.01)
@@ -236,7 +236,7 @@ class NutmegProbe(Proc):
                  '-show_streams',
                  '-print_format json',
                  # '-unit -prefix -pretty',
-                 '-i ' + fname_in]
+                 '-i "' + fname_in + '"']
 
         self.command = ' '.join(parts)
         self._start()
