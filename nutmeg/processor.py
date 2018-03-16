@@ -78,8 +78,8 @@ class Proc():
         """
         self.fname_exe = find_executable(fname_exe)
 
-        if not os.path.isfile(self.fname_exe):
-            raise ValueError('Executable not found: {}'.format(self.fname_exe))
+        if self.fname_exe == None or not os.path.isfile(self.fname_exe):
+            raise ValueError('Executable not found: {}'.format(fname_exe))
 
         # if not path_work:
         #     path_work = os.path.curdir
